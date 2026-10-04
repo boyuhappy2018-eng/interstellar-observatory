@@ -9,11 +9,15 @@ $executable = Get-ChildItem $installDir -Filter '*.exe' | Where-Object { $_.Name
 if (!$executable) { throw 'Installed application executable is missing.' }
 $app = $null
 try {
-  $app = Start-Process $executable.FullName -PassThru
+  $launchLog = Join-Path $env:RUNNER_TEMP 'interstellar-launch.log'
+  $app = Start-Process $executable.FullName -PassThru -RedirectStandardError $launchLog
   for ($i=0; $i -lt 8; $i++) {
     Start-Sleep -Seconds 1
     $app.Refresh()
-    if ($app.HasExited) { throw "Application exited during launch with $($app.ExitCode)." }
+    if ($app.HasExited) {
+      Get-Content $launchLog -ErrorAction SilentlyContinue
+      throw "Application exited during launch with $($app.ExitCode)."
+    }
   }
   Write-Output 'NSIS installation succeeded and the application stayed running.'
 } finally {

@@ -37,6 +37,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || 'x86_64-pc-windows-msvc' }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: desktop/src-tauri -> target
+          shared-key: desktop-${{ runner.os }}
       - run: pnpm install --frozen-lockfile
       - run: npm --prefix desktop ci
       - run: npm --prefix desktop test
@@ -105,7 +109,7 @@ jobs:
           APPLE_TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
         with:
           projectPath: desktop
-          args: ${{ matrix.args }} --config src-tauri/tauri.release.conf.json
+          args: ${{ matrix.args }} --config src-tauri/tauri.release.conf.json -- --locked
           tagName: desktop-v${{ inputs.version }}
           releaseName: INTERSTELLAR Observatory ${{ inputs.version }}
           releaseBody: |
@@ -117,6 +121,13 @@ jobs:
           updaterJsonPreferNsis: true
           uploadUpdaterSignatures: true
           uploadWorkflowArtifacts: true
+      - name: Verify macOS DMG and launch
+        if: runner.os == 'macOS'
+        run: bash desktop/scripts/smoke-macos.sh desktop/src-tauri/target
+      - name: Verify Windows install, launch and uninstall
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./desktop/scripts/smoke-windows.ps1 -Artifacts desktop/src-tauri/target
   channel-check:
     needs: native
     runs-on: ubuntu-latest

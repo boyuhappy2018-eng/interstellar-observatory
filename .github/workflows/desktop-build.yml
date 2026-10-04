@@ -31,6 +31,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || 'x86_64-pc-windows-msvc' }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: desktop/src-tauri -> target
+          shared-key: desktop-${{ runner.os }}
       - run: pnpm install --frozen-lockfile
       - run: npm --prefix desktop ci
       - run: npm --prefix desktop test
@@ -40,7 +44,7 @@ jobs:
           APPLE_SIGNING_IDENTITY: '-'
         with:
           projectPath: desktop
-          args: ${{ matrix.args }}
+          args: ${{ matrix.args }} -- --locked
           uploadWorkflowArtifacts: true
       - name: Verify macOS DMG and launch
         if: runner.os == 'macOS'
