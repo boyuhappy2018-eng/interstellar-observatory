@@ -42,7 +42,15 @@ jobs:
           projectPath: desktop
           args: ${{ matrix.args }}
           uploadWorkflowArtifacts: true
+      - name: Verify macOS DMG and launch
+        if: runner.os == 'macOS'
+        run: bash desktop/scripts/smoke-macos.sh desktop/src-tauri/target
+      - name: Verify Windows install, launch and uninstall
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./desktop/scripts/smoke-windows.ps1 -Artifacts desktop/src-tauri/target
       - name: Preserve resolved Rust dependencies
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: cargo-lock-${{ matrix.platform }}
