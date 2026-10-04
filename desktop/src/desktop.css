@@ -1,0 +1,10 @@
+@import '../../app/globals.css';
+@source '../../components';
+@source '../../app';
+.desktop-update-button{position:fixed;right:48px;bottom:8px;color:#8f9087;font:12px/1.5 Arial,sans-serif;letter-spacing:.09em;z-index:8;padding:4px 0;background:transparent;border:0}
+body:has(main.cinema) .desktop-update-button{display:none}
+.desktop-update-button:hover{color:#d8c9ac}
+.desktop-update-dialog{background:#101112!important;color:#dedcd6;border:1px solid #3c3b36!important;border-radius:2px!important;padding:28px!important;font:14px/1.7 Arial,sans-serif;max-width:480px!important}
+.desktop-update-dialog h2{font-weight:400;font-size:22px}.desktop-update-dialog p{color:#b2b3aa}.desktop-update-dialog small{color:#8c8e86;font-size:12px}.desktop-update-dialog progress{width:100%;accent-color:#c2b598;height:3px}.desktop-update-dialog details p{font:12px/1.6 monospace;overflow-wrap:anywhere}.update-notes{white-space:pre-wrap;max-height:180px;overflow:auto}.desktop-update-actions{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}.desktop-update-actions button{font-size:14px;border:1px solid #4e4c42;padding:9px 14px;color:#d8cfbb}.desktop-update-actions button:disabled{opacity:.45;cursor:default}
+.desktop-model-dialog{background:#0b0c0d!important;color:#dedcd6;border:1px solid #3c3b36!important;border-radius:2px!important;width:min(960px,95vw)!important;max-width:960px!important;height:88vh;display:flex!important;flex-direction:column}.desktop-model-dialog iframe{width:100%;flex:1;min-height:0;border:0;background:#0b0c0d}
+@media(max-width:900px){.desktop-update-button{right:28px}}

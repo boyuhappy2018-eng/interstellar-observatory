@@ -1,0 +1,1 @@
+{"identifier":"main-local","description":"Local observatory and signed updater. No remote page has native access.","windows":["main"],"permissions":["core:default","core:window:allow-is-fullscreen","core:window:allow-set-fullscreen","updater:default","process:allow-restart","opener:default"]}

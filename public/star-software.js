@@ -1,0 +1,6 @@
+// Reduced-resolution compatibility photosphere; the same empirical radius and color as WebGL.
+function stellarPixel(eye,v,st,s,time){const R=st.radius,b=eye[0]*v[0]+eye[1]*v[1]+eye[2]*v[2],disc=b*b-(eye[0]**2+eye[1]**2+eye[2]**2-R*R);if(disc<0||b>=0)return null;
+ const d=-b-Math.sqrt(disc),worldNormal=eye.map((x,i)=>(x+v[i]*d)/R),mu=Math.max(0,-worldNormal.reduce((sum,x,i)=>sum+x*v[i],0)),normal=orient(worldNormal,s,true),angle=time*s.rotation*.045*(1-.18*normal[1]**2),n=[Math.cos(angle)*normal[0]-Math.sin(angle)*normal[2],normal[1],Math.sin(angle)*normal[0]+Math.cos(angle)*normal[2]];
+ const convection=1-smooth(6500,9000,st.temperature),large=noise(n[0]*14,n[1]*14+time*.025,n[2]*14),fine=noise(n[0]*220+large*3,n[1]*220+time*.09,n[2]*220),texture=1+( .70+.42*smooth(.22,.72,fine)+.06-1)*s.granulation*convection,spots=smooth(.71,.86,noise(n[0]*11+2,n[1]*11,n[2]*11))**2*(1-smooth(.18,.6,Math.abs(n[1]))),shade=1-spots*s.activity*.85*convection;
+ const network=(1-Math.abs(2*noise(n[0]*58,n[1]*58,n[2]*58)-1))**8,facula=s.activity*convection*network*.16*(1-mu)**1.5,supercells=.94+.13*noise(n[0]*35,n[1]*35+time*.018,n[2]*35);return st.color.map(x=>x*(texture*(1+(supercells-1)*convection)*shade+facula)*(1-s.limb*(1-mu))*1.6);
+}

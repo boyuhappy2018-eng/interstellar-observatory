@@ -1,0 +1,50 @@
+name: Desktop build checks
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['desktop/**', 'app/**', 'lib/**', 'components/**', 'public/**', 'package.json', 'pnpm-lock.yaml', '.github/workflows/desktop-build.yml']
+  pull_request:
+    paths: ['desktop/**', 'app/**', 'lib/**', 'components/**', 'public/**', 'package.json', 'pnpm-lock.yaml', '.github/workflows/desktop-build.yml']
+permissions:
+  contents: read
+jobs:
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            args: --target universal-apple-darwin --bundles app,dmg
+          - platform: windows-latest
+            args: --target x86_64-pc-windows-msvc --bundles nsis
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || 'x86_64-pc-windows-msvc' }}
+      - run: pnpm install --frozen-lockfile
+      - run: npm --prefix desktop ci
+      - run: npm --prefix desktop test
+      - name: Build native test installers (no public update channel)
+        uses: tauri-apps/tauri-action@v1
+        env:
+          APPLE_SIGNING_IDENTITY: '-'
+        with:
+          projectPath: desktop
+          args: ${{ matrix.args }}
+          uploadWorkflowArtifacts: true
+      - name: Preserve resolved Rust dependencies
+        uses: actions/upload-artifact@v4
+        with:
+          name: cargo-lock-${{ matrix.platform }}
+          path: desktop/src-tauri/Cargo.lock
+          if-no-files-found: error

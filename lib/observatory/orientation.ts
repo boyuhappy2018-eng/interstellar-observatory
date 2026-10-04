@@ -1,0 +1,3 @@
+/** Rz(roll) Rx(tilt), degrees. Rotate the source, not the camera or screen. */
+export function orient(p:number[],tilt:number,roll:number,inverse=false){const a=tilt*Math.PI/180,b=roll*Math.PI/180,ca=Math.cos(a),sa=Math.sin(a),cb=Math.cos(b),sb=Math.sin(b);if(inverse){const x=cb*p[0]+sb*p[1],y=-sb*p[0]+cb*p[1];return [x,ca*y+sa*p[2],-sa*y+ca*p[2]];}const y=ca*p[1]-sa*p[2],z=sa*p[1]+ca*p[2];return [cb*p[0]-sb*y,sb*p[0]+cb*y,z];}
+export function cameraBasis(eye:number[],tilt:number,roll:number){const r=Math.hypot(...eye),f=eye.map(x=>-x/r),q=Math.hypot(f[0],f[2]),right=[-f[2]/q,0,f[0]/q],up=[-right[2]*f[1],right[2]*f[0]-right[0]*f[2],right[0]*f[1]];return [f,right,up].map(p=>orient(p,tilt,roll,true));}
